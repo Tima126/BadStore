@@ -12,11 +12,11 @@
         <form id="registerForm">
             <h1>Регистрация</h1>
             <div class="input-box">
-                <input type="text" id="username" placeholder="Имя" required>
+                <input type="text" id="Name" placeholder="Имя" required>
                 <i class='bx bx-user'></i>
             </div>
             <div class="input-box">
-                <input type="text" id="lastname" placeholder="Фамилия" required>
+                <input type="text" id="FirstName" placeholder="Фамилия" required>
                 <i class='bx bx-user'></i>
             </div>
             <div class="input-box">
@@ -39,37 +39,38 @@
     </div>
 
     <script>
-        document.getElementById('registerForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
+       document.getElementById('registerForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
 
-            const username = document.getElementById('username').value;
-            const lastname = document.getElementById('lastname').value;
-            const patronymic = document.getElementById('patronymic').value;
-            const email = document.getElementById('email').value;
-            const password = document.getElementById('password').value;
+    // Исправленные идентификаторы
+    const Name = document.getElementById('Name').value;
+    const FirstName = document.getElementById('FirstName').value;
+    const patronymic = document.getElementById('patronymic').value;
+    const email = document.getElementById('email').value;
+    const password = document.getElementById('password').value;
 
-            try {
-                const response = await fetch('/auth/register', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({ username, lastname, patronymic, email, password })
-                });
-
-                const result = await response.json();
-                if (response.ok) {
-                    alert(result.message);
-                    // Перенаправление на страницу входа после успешной регистрации
-                    window.location.href = 'vh.html';
-                } else {
-                    alert(result.message);
-                }
-            } catch (error) {
-                console.error('Ошибка:', error);
-                alert('Произошла ошибка при регистрации');
-            }
+    try {
+        const response = await fetch('/auth/register', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ Name, FirstName, patronymic, email, password })
         });
+
+        const result = await response.json();
+        if (response.ok) {
+            alert(result.message);
+            window.location.href = 'vh.html';
+        } else {
+            alert(result.message);
+        }
+    } catch (error) {
+        console.error('Ошибка:', error);
+        alert('Произошла ошибка при регистрации');
+    }
+});
+
     </script>
 </body>
 </html>

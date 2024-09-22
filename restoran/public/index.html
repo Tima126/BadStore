@@ -13,13 +13,16 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Open+Sans:ital@1&display=swap" rel="stylesheet">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Диваный островок </title>
+    <title>Диваный островок</title>
 </head>
 <body>
 
 <div class='header'>
     <div class='container'>
         <div class='header-line'>
+            <!-- Добавление выпадающего списка с заказами -->
+            <div id='ordersDropdownContainer'></div>
+
             <div class='nav'>
                 <a class='nav-item' href="@">ГЛАВНАЯ</a>
                 <a class='nav-item' href="@">КАТАЛОГ</a>
@@ -47,8 +50,8 @@
                 </div>
             </div>
 
-            <div class='btn'>
-                <a class='button' href='vh.html'>Регестрация/Войти</a>
+            <div class='btn' id='authButtonContainer'>
+                <a class='button' href='vh.html' id='authButton'>Регистрация/Войти</a>
             </div>
 
             <div class='burger-menu'>
@@ -294,6 +297,65 @@
 </div>
 
 <script src='app.js'></script>
+<script>
+    // Проверка статуса аутентификации при загрузке страницы
+    document.addEventListener('DOMContentLoaded', async () => {
+        try {
+            const response = await fetch('/auth/check');
+            const result = await response.json();
 
+            if (result.authenticated) {
+                document.getElementById('authButtonContainer').innerHTML = `
+                    <div class='button'>Добро пожаловать, ${result.user.UserName}!</div>
+                    <button id='logoutButton' class='button'>Выйти</button>
+                `;
+
+                // Обработчик для кнопки выхода
+                document.getElementById('logoutButton').addEventListener('click', async () => {
+                    try {
+                        const logoutResponse = await fetch('/auth/logout', { method: 'POST' });
+                        const logoutResult = await logoutResponse.json();
+
+                        if (logoutResponse.ok) {
+                            alert(logoutResult.message);
+                            location.reload(); // Перезагрузка страницы для обновления состояния аутентификации
+                        } else {
+                            alert('Ошибка при выходе из аккаунта');
+                        }
+                    } catch (error) {
+                        console.error('Ошибка при выходе из аккаунта:', error);
+                        alert('Произошла ошибка при выходе из аккаунта');
+                    }
+                });
+
+                // Получение списка заказов пользователя
+                const ordersResponse = await fetch('/orders');
+                const orders = await ordersResponse.json();
+
+                const ordersDropdown = document.createElement('select');
+                ordersDropdown.id = 'ordersDropdown';
+                ordersDropdown.innerHTML = `
+                    <option value="" disabled selected>Ваши заказы</option>
+                `;
+
+                orders.forEach(order => {
+                    const option = document.createElement('option');
+                    option.value = order.IdOrders;
+                    option.text = `${order.NameDivan} - ${order.Price} ₽ - ${order.Status}`;
+                    ordersDropdown.appendChild(option);
+                });
+
+                // Добавление выпадающего списка в контейнер
+                document.getElementById('ordersDropdownContainer').appendChild(ordersDropdown);
+            } else {
+                document.getElementById('authButtonContainer').innerHTML = `
+                    <a class='button' href='vh.html' id='authButton'>Регистрация/Войти</a>
+                `;
+            }
+        } catch (error) {
+            console.error('Ошибка при проверке статуса аутентификации:', error);
+        }
+    });
+</script>
 </body>
 </html>
