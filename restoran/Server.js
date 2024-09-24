@@ -4,26 +4,28 @@ const mysql = require('mysql2/promise');
 const session = require('express-session');
 const app = express();
 
-// Настройка body-parser для обработки JSON
+
 app.use(bodyParser.json());
 
-// Настройка сессий
+
 app.use(session({
     secret: 'your_secret_key',
     resave: false,
     saveUninitialized: true,
-    cookie: { secure: false } // Установите secure: true, если используете HTTPS
+    cookie: { secure: false } 
 }));
 
 // Настройка подключения к MySQL
 const dbConfig = {
     host: 'localhost',
+
     user: 'root', // Замените на ваше имя пользователя
     password: 'Tima2006', // Замените на ваш пароль
     database: 'badstore' // Замените на имя вашей базы данных
+
 };
 
-// Проверка подключения к базе данных
+
 async function testConnection() {
     try {
         const connection = await mysql.createConnection(dbConfig);
@@ -40,12 +42,12 @@ testConnection();
 app.post('/auth/register', async (req, res) => {
     const { Name, FirstName, patronymic, email, password } = req.body;
 
-    console.log('Данные от клиента:', req.body); // Вывод данных для проверки
+    console.log('Данные от клиента:', req.body); 
 
     try {
         const connection = await mysql.createConnection(dbConfig);
 
-        // Проверка данных перед выполнением запроса
+
         if (!Name || !FirstName || !email || !password) {
             return res.status(400).json({ message: 'Не все обязательные поля заполнены' });
         }
@@ -55,7 +57,7 @@ app.post('/auth/register', async (req, res) => {
             [Name, FirstName, patronymic || null, email, password]
         );
 
-        console.log('Данные успешно вставлены:', rows); // Вывод результата вставки
+        console.log('Данные успешно вставлены:', rows); 
 
         res.status(201).json({ message: 'Пользователь успешно зарегистрирован' });
     } catch (err) {
@@ -141,19 +143,19 @@ app.post('/auth/logout', (req, res) => {
 app.post('/order', async (req, res) => {
     const { model, color, namePoluchateln, addrress, phone, dataOrders } = req.body;
 
-    console.log('Данные от клиента:', req.body); // Вывод данных для проверки
+    console.log('Данные от клиента:', req.body); 
 
     try {
         const connection = await mysql.createConnection(dbConfig);
 
-        // Получаем IdCustomers из сессии
+
         const IdCustomers = req.session.user ? req.session.user.IdCustomers : null;
 
         if (!IdCustomers) {
             return res.status(401).json({ message: 'Пожалуйста, войдите в систему, чтобы оформить заказ' });
         }
 
-        // Получаем IdDivan из таблицы Divan
+
         const [divanRows] = await connection.execute(
             'SELECT IdDivan FROM Divan WHERE NameDivan = ? AND TypeTkani = ?',
             [model, color]
@@ -171,7 +173,7 @@ app.post('/order', async (req, res) => {
             [IdCustomers, IdDivan, namePoluchateln, addrress, phone, dataOrders]
         );
 
-        console.log('Данные успешно вставлены:', orderRows); // Вывод результата вставки
+        console.log('Данные успешно вставлены:', orderRows); 
 
         res.status(201).json({ message: 'Заказ успешно оформлен' });
     } catch (err) {
@@ -180,7 +182,7 @@ app.post('/order', async (req, res) => {
     }
 });
 
-// Указываем Express обслуживать статические файлы из директории 'public'
+
 app.use(express.static('public'));
 
 app.listen(3000, () => {
